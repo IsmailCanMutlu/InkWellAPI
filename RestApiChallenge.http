@@ -1,0 +1,6 @@
+@RestApiChallenge_HostAddress = http://localhost:5115
+
+GET {{RestApiChallenge_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
