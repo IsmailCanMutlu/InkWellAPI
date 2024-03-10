@@ -1,46 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
-using RestApiChallenge.Data;
-using RestApiChallenge.Models;
-using RestApiChallenge.Services;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+using RestApiChallenge.Models.Requests;
+using RestApiChallenge.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 [Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly UserService _userService;
-    private readonly ApplicationDbContext _context;
+    private readonly IUserService _userService;
 
-    public UserController(UserService userService, ApplicationDbContext context)
+    public UserController(IUserService userService)
     {
         _userService = userService;
-        _context = context;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] User user)
+    public async Task<IActionResult> Register([FromBody] UserRegisterRequest registerRequest)
     {
-        // Kullanıcı kaydı işlemleri
-        var userExists = await _context.Users.AnyAsync(u => u.Username == user.Username);
-        if (userExists)
-        {
-            return BadRequest(new { message = "Username is already taken." });
-        }
-
-        var result = await _userService.RegisterUserAsync(user);
+        var result = await _userService.RegisterUserAsync(registerRequest);
         if (result)
         {
             return Ok(new { message = "User registered successfully." });
         }
 
-        return BadRequest(new { message = "User registration failed." });
+        return BadRequest(new { message = "User registration failed. Username might be already taken." });
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] User loginDetails)
+    [AllowAnonymous]
+    public async Task<IActionResult> Login([FromBody] UserLoginRequest loginRequest)
     {
-        var token = await _userService.ValidateUserAsync(loginDetails.Username, loginDetails.Password);
+        var token = await _userService.ValidateUserAsync(loginRequest.Username, loginRequest.Password);
         if (token != null)
         {
             return Ok(new { token = token });

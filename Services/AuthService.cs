@@ -1,41 +1,56 @@
-using RestApiChallenge.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using RestApiChallenge.Services.Interfaces;
+using RestApiChallenge.Settings;
 
-namespace RestApiChallenge.Services{
-public class AuthService
+namespace RestApiChallenge.Services;
+
+public sealed class AuthService : IAuthService
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _options;
 
-    public AuthService(IConfiguration configuration)
+    public AuthService(IOptions<JwtSettings> options)
     {
-        _configuration = configuration;
+        _options = options.Value;
     }
 
-    public string GenerateJwtToken(User user)
+    public string GenerateToken(int userId, string username)
     {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKeyValue = jwtSettings.GetSection("SecretKey").Value;
-if (string.IsNullOrEmpty(secretKeyValue))
-{
-    throw new InvalidOperationException("JWT Secret Key must be set in the configuration.");
-}
-var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKeyValue));
-
-        var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-
-        var tokenOptions = new JwtSecurityToken(
-            issuer: jwtSettings.GetSection("Issuer").Value,
-            audience: jwtSettings.GetSection("Audience").Value,
-            claims: new List<Claim>(),
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: signinCredentials
-        );
-
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-        return tokenString;
+        var key = Encoding.ASCII.GetBytes(_options.IssuerSigningKey);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Name, username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sid, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat,
+                    new DateTimeOffset(DateTime.UtcNow).ToUniversalTime().ToUnixTimeSeconds().ToString(),
+                    ClaimValueTypes.Integer64),
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(30),
+            Issuer = _options.Issuer,
+            Audience = _options.Audience,
+            SigningCredentials =
+                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
+            NotBefore = DateTime.UtcNow,
+            IssuedAt = DateTime.UtcNow
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
+
+public static class AuthExtensions
+{
+    public static string GetPrincipal(this ClaimsPrincipal claimsPrincipal, string claimValueTypes)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(claimValueTypes);
+        return claimsPrincipal.FindFirstValue(claimValueTypes);
+    }
 }

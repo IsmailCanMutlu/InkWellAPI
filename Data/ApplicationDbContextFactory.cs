@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Design;
 
 
 
-namespace RestApiChallenge.Data
-{
-    public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+namespace RestApiChallenge.Data;
+
+public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
@@ -21,6 +21,4 @@ namespace RestApiChallenge.Data
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
-}
-
 }

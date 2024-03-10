@@ -17,7 +17,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "dotnetRunMessages": true,
+      "dotnetRunMessages": true
     },
     "https": {
       "commandName": "Project",
@@ -39,3 +39,4 @@
     }
   }
 }
+
