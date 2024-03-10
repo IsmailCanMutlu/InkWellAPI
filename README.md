@@ -40,16 +40,16 @@ The application will be running at https://localhost:5001 and http://localhost:5
 
 ### User Operations
 
--User Registration: POST /api/User/register
--User Login: POST /api/User/login
+- User Registration: POST /api/User/register
+- User Login: POST /api/User/login
 
 ### Book Operations
 
--List All Books: GET /api/Book
--Add Book: POST /api/Book
--Update Book: PUT /api/Book/{id}
--Delete Book: DELETE /api/Book/{id}
--List Books by User: GET /api/Book/user/{userId}
+- List All Books: GET /api/Book
+- Add Book: POST /api/Book
+- Update Book: PUT /api/Book/{id}
+- Delete Book: DELETE /api/Book/{id}
+- List Books by User: GET /api/Book/user/{userId}
 
 ##License
 This project is licensed under the MIT License.
