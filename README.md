@@ -16,12 +16,12 @@ This project is designed as a book management system REST API. Users can registe
 Clone the project to your local machine:
 
 ```bash
-git clone https://github.com/IsmailCanMutlu/RestApiChallenge.git
+git clone https://github.com/IsmailCanMutlu/InkWellAPI.git
 ```
 Navigate to the project directory and install dependencies:
 
 ```bash
-cd RestApiChallenge
+cd InkWellAPI
 dotnet restore
 ```
 Create the database and apply migrations:
