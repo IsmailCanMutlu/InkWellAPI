@@ -1,4 +1,4 @@
-# RestApiChallenge
+# InkWellAPI
 
 This project is designed as a book management system REST API. Users can register, log in, add, update, or delete books. They can also query the books added by a user.
 
